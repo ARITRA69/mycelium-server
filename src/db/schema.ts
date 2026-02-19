@@ -52,7 +52,6 @@ export async function run_migrations() {
   await sql`CREATE INDEX IF NOT EXISTS media_items_taken_at_idx ON media_items(taken_at)`;
   await sql`CREATE INDEX IF NOT EXISTS media_items_processing_status_idx ON media_items(processing_status)`;
   await sql`CREATE INDEX IF NOT EXISTS media_items_is_vaulted_idx ON media_items(is_vaulted)`;
-  await sql`CREATE INDEX IF NOT EXISTS media_items_deleted_at_idx ON media_items(deleted_at)`;
 
   await sql`
     DO $$ BEGIN
@@ -133,7 +132,6 @@ export async function run_migrations() {
   `;
 
   await sql`CREATE INDEX IF NOT EXISTS album_media_album_id_idx ON album_media(album_id)`;
-  await sql`CREATE INDEX IF NOT EXISTS albums_deleted_at_idx ON albums(deleted_at)`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS favorites (
