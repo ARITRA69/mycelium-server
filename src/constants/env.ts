@@ -4,6 +4,8 @@ export type TEnv = {
   frontend_url: string;
   backend_url: string;
   ollama_url: string;
+  clerk_publishable_key: string;
+  clerk_secret_key: string;
 };
 
 export const env: TEnv = {
@@ -12,4 +14,6 @@ export const env: TEnv = {
   frontend_url: Bun.env.FRONTEND_URL ?? "NA",
   backend_url: Bun.env.BACKEND_URL ?? "NA",
   ollama_url: Bun.env.OLLAMA_URL ?? "NA",
+  clerk_publishable_key: Bun.env.CLERK_PUBLISHABLE_KEY ?? "NA",
+  clerk_secret_key: Bun.env.CLERK_SECRET_KEY ?? "NA",
 };

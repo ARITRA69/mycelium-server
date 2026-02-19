@@ -1,14 +1,13 @@
+import type { Request, Response } from "express";
 import { error, success } from "@/types/response";
 
-export async function login(req: Request): Promise<Response> {
-  const { email, password } = (await req.json()) as {
-    email: string;
-    password: string;
-  };
+export async function login(req: Request, res: Response): Promise<void> {
+  const { email, password } = req.body as { email: string; password: string };
 
   if (!email || !password) {
-    return error("Email and password are required", 400);
+    error(res, "Email and password are required", 400);
+    return;
   }
 
-  return success("Login successful", { email });
+  success(res, "Login successful", { email });
 }

@@ -38,7 +38,7 @@ export function getUserById(id: string) { ... }
 
 | Purpose | Use | Never use |
 |---|---|---|
-| HTTP server + routes | `Bun.serve()` | `express`, `fastify`, `hono` |
+| HTTP server + routes | `express` | `Bun.serve()`, `fastify`, `hono` |
 | SQLite | `bun:sqlite` | `better-sqlite3` |
 | Redis | `Bun.redis` | `ioredis`, `redis` |
 | Postgres | `Bun.sql` | `pg`, `postgres.js` |
@@ -48,9 +48,21 @@ export function getUserById(id: string) { ... }
 
 ---
 
+## Express Conventions
+
+Always import `Request` and `Response` directly from `express`:
+
+```ts
+import type { Request, Response } from "express";
+```
+
+Never use aliases like `ExpressRequest` or `ExpressResponse`.
+
+---
+
 ## Server Structure
 
-Entry point using `Bun.serve()` with HTML imports for the frontend:
+Entry point using Express:
 
 ```ts
 // src/index.ts

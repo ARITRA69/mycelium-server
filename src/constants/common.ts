@@ -3,6 +3,8 @@ export const MEDIA_TYPE = {
   VIDEO: "video",
 } as const;
 
+export type MediaType = (typeof MEDIA_TYPE)[keyof typeof MEDIA_TYPE];
+
 export const MEDIA_PROCESSING_STATUS = {
   UNPROCESSED: "unprocessed",
   QUEUED: "queued",
@@ -11,6 +13,8 @@ export const MEDIA_PROCESSING_STATUS = {
   FAILED: "failed",
 } as const;
 
+export type MediaProcessingStatus = (typeof MEDIA_PROCESSING_STATUS)[keyof typeof MEDIA_PROCESSING_STATUS];
+
 export const AI_STATUS = {
   PENDING: "pending",
   PROCESSING: "processing",
@@ -18,7 +22,11 @@ export const AI_STATUS = {
   FAILED: "failed",
 } as const;
 
+export type AiStatus = (typeof AI_STATUS)[keyof typeof AI_STATUS];
+
 export const TAG_SOURCE = {
   AI: "ai",
   MANUAL: "manual",
 } as const;
+
+export type TagSource = (typeof TAG_SOURCE)[keyof typeof TAG_SOURCE];

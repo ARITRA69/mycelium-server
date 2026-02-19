@@ -3,9 +3,9 @@ import { ollama } from "@/db/ollama";
 import { run_migrations } from "@/db/schema";
 import { auth_routes } from "@/routes/auth";
 import { user_routes } from "@/routes/user";
-import { error } from "@/types/response";
-import chalk from "chalk";
 import { ai_process_routes } from "./routes/ai-process";
+import chalk from "chalk";
+import express from "express";
 
 async function connect_ollama() {
   try {
@@ -21,23 +21,26 @@ async function connect_ollama() {
 await connect_ollama();
 await run_migrations();
 
-Bun.serve({
-  port: env.port,
-  routes: {
-    "/": () =>
-      Response.json({
-        status: "ok",
-        message: "Gallery API is running",
-        version: "1.0.0",
-        timestamp: new Date().toISOString(),
-      }),
-    ...auth_routes,
-    ...user_routes,
-    ...ai_process_routes,
-  },
-  fetch(req) {
-    return error("Not found", 404);
-  },
+const app = express();
+app.use(express.json());
+
+app.get("/", (_req, res) => {
+  res.json({
+    status: "ok",
+    message: "Gallery API is running",
+    version: "1.0.0",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-console.log(chalk.red(`Server running on http://localhost:${env.port}`));
+app.use("/api/v1/auth", auth_routes);
+app.use("/api/v1/user", user_routes);
+app.use("/api/v1/ai-process", ai_process_routes);
+
+app.use((_req, res) => {
+  res.status(404).json({ message: "Not found" });
+});
+
+app.listen(env.port, () => {
+  console.log(chalk.red(`Server running on http://localhost:${env.port}`));
+});

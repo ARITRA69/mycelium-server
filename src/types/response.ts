@@ -1,15 +1,17 @@
+import type { Response } from "express";
+
 export type ApiResponse<T = undefined> = {
   message: string;
   data?: T;
 };
 
-export function success<T>(message: string, data?: T, status = 200): Response {
+export function success<T>(res: Response, message: string, data?: T, status = 200): void {
   const body: ApiResponse<T> = { message };
   if (data !== undefined) body.data = data;
-  return Response.json(body, { status });
+  res.status(status).json(body);
 }
 
-export function error(message: string, status = 400): Response {
+export function error(res: Response, message: string, status = 400): void {
   const body: ApiResponse = { message };
-  return Response.json(body, { status });
+  res.status(status).json(body);
 }

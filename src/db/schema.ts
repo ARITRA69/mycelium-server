@@ -28,7 +28,7 @@ export async function run_migrations() {
   await sql`
     CREATE TABLE IF NOT EXISTS media_items (
       id                  uuid primary key default gen_random_uuid(),
-      user_id             text not null references users(id) on delete cascade,
+      "user"              text not null references users(id) on delete cascade,
       file_path           text not null,
       file_name           text not null,
       mime_type           text not null,
@@ -43,11 +43,11 @@ export async function run_migrations() {
       deleted_at          timestamptz,
       created_at          timestamptz default now(),
       updated_at          timestamptz default now(),
-      unique(user_id, file_path)
+      unique("user", file_path)
     )
   `;
 
-  await sql`CREATE INDEX IF NOT EXISTS media_items_user_id_idx ON media_items(user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS media_items_user_idx ON media_items("user")`;
   await sql`CREATE INDEX IF NOT EXISTS media_items_media_type_idx ON media_items(media_type)`;
   await sql`CREATE INDEX IF NOT EXISTS media_items_taken_at_idx ON media_items(taken_at)`;
   await sql`CREATE INDEX IF NOT EXISTS media_items_processing_status_idx ON media_items(processing_status)`;
@@ -65,7 +65,7 @@ export async function run_migrations() {
   await sql`
     CREATE TABLE IF NOT EXISTS media_ai_data (
       id            uuid primary key default gen_random_uuid(),
-      media_id      uuid not null references media_items(id) on delete cascade unique,
+      media         uuid not null references media_items(id) on delete cascade unique,
       description   text,
       tags          text[],
       status        ai_status not null default 'pending',
@@ -98,55 +98,58 @@ export async function run_migrations() {
   await sql`
     CREATE TABLE IF NOT EXISTS media_tags (
       id          uuid primary key default gen_random_uuid(),
-      media_id    uuid not null references media_items(id) on delete cascade,
-      tag_id      uuid not null references tags(id) on delete cascade,
+      media       uuid not null references media_items(id) on delete cascade,
+      tag         uuid not null references tags(id) on delete cascade,
       source      tag_source not null default 'ai',
       created_at  timestamptz default now()
     )
   `;
 
-  await sql`CREATE INDEX IF NOT EXISTS media_tags_media_id_idx ON media_tags(media_id)`;
-  await sql`CREATE INDEX IF NOT EXISTS media_tags_tag_id_idx ON media_tags(tag_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS media_tags_media_idx ON media_tags(media)`;
+  await sql`CREATE INDEX IF NOT EXISTS media_tags_tag_idx ON media_tags(tag)`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS albums (
-      id              uuid primary key default gen_random_uuid(),
-      user_id         text not null references users(id) on delete cascade,
-      name            text not null,
-      description     text,
-      cover_media_id  uuid references media_items(id) on delete set null,
-      deleted_at      timestamptz,
-      created_at      timestamptz default now(),
-      updated_at      timestamptz default now()
+      id            uuid primary key default gen_random_uuid(),
+      "user"        text not null references users(id) on delete cascade,
+      name          text not null,
+      description   text,
+      cover_media   uuid references media_items(id) on delete set null,
+      deleted_at    timestamptz,
+      created_at    timestamptz default now(),
+      updated_at    timestamptz default now()
     )
   `;
 
   await sql`
     CREATE TABLE IF NOT EXISTS album_media (
-      album_id    uuid references albums(id) on delete cascade,
-      media_id    uuid references media_items(id) on delete cascade,
+      id          uuid primary key default gen_random_uuid(),
+      album       uuid not null references albums(id) on delete cascade,
+      media       uuid not null references media_items(id) on delete cascade,
       sort_order  int default 0,
       added_at    timestamptz default now(),
-      primary key (album_id, media_id)
+      unique(album, media)
     )
   `;
 
-  await sql`CREATE INDEX IF NOT EXISTS album_media_album_id_idx ON album_media(album_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS album_media_album_idx ON album_media(album)`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS favorites (
-      user_id     text references users(id) on delete cascade,
-      media_id    uuid references media_items(id) on delete cascade,
+      id          uuid primary key default gen_random_uuid(),
+      "user"      text not null references users(id) on delete cascade,
+      media       uuid not null references media_items(id) on delete cascade,
       created_at  timestamptz default now(),
-      primary key (user_id, media_id)
+      unique("user", media)
     )
   `;
 
-  await sql`CREATE INDEX IF NOT EXISTS favorites_user_id_idx ON favorites(user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS favorites_user_idx ON favorites("user")`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS user_vaults (
-      user_id     text primary key references users(id) on delete cascade,
+      id          uuid primary key default gen_random_uuid(),
+      "user"      text unique not null references users(id) on delete cascade,
       pin_hash    text not null,
       is_enabled  boolean not null default true,
       created_at  timestamptz default now(),
@@ -157,7 +160,7 @@ export async function run_migrations() {
   await sql`
     CREATE TABLE IF NOT EXISTS vault_sessions (
       id          uuid primary key default gen_random_uuid(),
-      user_id     text not null references user_vaults(user_id) on delete cascade,
+      "user"      text not null references users(id) on delete cascade,
       token_hash  text not null,
       expires_at  timestamptz not null,
       created_at  timestamptz default now(),
@@ -165,11 +168,6 @@ export async function run_migrations() {
     )
   `;
 
-  await sql`CREATE INDEX IF NOT EXISTS vault_sessions_user_id_idx ON vault_sessions(user_id)`;
+  await sql`CREATE INDEX IF NOT EXISTS vault_sessions_user_idx ON vault_sessions("user")`;
   await sql`CREATE INDEX IF NOT EXISTS vault_sessions_expires_at_idx ON vault_sessions(expires_at)`;
-
-  await sql`ALTER TABLE media_items ADD COLUMN IF NOT EXISTS deleted_at timestamptz`;
-  await sql`ALTER TABLE albums ADD COLUMN IF NOT EXISTS deleted_at timestamptz`;
-  await sql`CREATE INDEX IF NOT EXISTS media_items_deleted_at_idx ON media_items(deleted_at)`;
-  await sql`CREATE INDEX IF NOT EXISTS albums_deleted_at_idx ON albums(deleted_at)`;
 }

@@ -2,27 +2,15 @@ import { MODELS } from "@/constants/models";
 import { IMAGE_EXTRACT_PROMPT } from "@/constants/prompts";
 import { ollama } from "@/db/ollama";
 import { error, success } from "@/types/response";
-import z from "zod";
+import type { Request, Response } from "express";
 
-const z_process_image = z.object({
-  image: z.instanceof(File),
-});
-
-export async function handle_process_image(req: Request): Promise<Response> {
-  const formData = await req.formData();
-
-  const parsed = z_process_image.safeParse({
-    image: formData.get("image"),
-  });
-
-  if (!parsed.success) {
-    return error("Invalid request", 400);
+export async function handle_process_image(req: Request, res: Response): Promise<void> {
+  if (!req.file) {
+    error(res, "Invalid request", 400);
+    return;
   }
 
-  const { image } = parsed.data;
-
-  const buffer = await image.arrayBuffer();
-  const base64 = Buffer.from(buffer).toString("base64");
+  const base64 = req.file.buffer.toString("base64");
 
   const generated_text = await ollama.generate({
     model: MODELS.QWEN3_VL_2B,
@@ -33,5 +21,5 @@ export async function handle_process_image(req: Request): Promise<Response> {
 
   const response_in_json = JSON.parse(generated_text.response);
 
-  return success("Image processed", response_in_json);
+  success(res, "Image processed", response_in_json);
 }
