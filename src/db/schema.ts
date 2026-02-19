@@ -64,20 +64,26 @@ export async function run_migrations() {
 
   await sql`
     CREATE TABLE IF NOT EXISTS media_ai_data (
-      id            uuid primary key default gen_random_uuid(),
-      media         uuid not null references media_items(id) on delete cascade unique,
-      description   text,
-      tags          text[],
-      status        ai_status not null default 'pending',
-      error         text,
-      attempts      int not null default 0,
-      completed_at  timestamptz,
-      created_at    timestamptz default now(),
-      updated_at    timestamptz default now()
+      id                      uuid primary key default gen_random_uuid(),
+      media                   uuid not null references media_items(id) on delete cascade unique,
+      media_type              media_type not null,
+      description             text,
+      tags                    text[],
+      status                  ai_status not null default 'pending',
+      error                   text,
+      attempts                int not null default 0,
+      completed_at            timestamptz,
+      embedding_status        ai_status not null default 'pending',
+      embedding_error         text,
+      embedding_attempts      int not null default 0,
+      embedding_completed_at  timestamptz,
+      created_at              timestamptz default now(),
+      updated_at              timestamptz default now()
     )
   `;
 
   await sql`CREATE INDEX IF NOT EXISTS media_ai_data_status_idx ON media_ai_data(status)`;
+  await sql`CREATE INDEX IF NOT EXISTS media_ai_data_embedding_status_idx ON media_ai_data(embedding_status)`;
 
   await sql`
     DO $$ BEGIN

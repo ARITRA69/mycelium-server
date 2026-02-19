@@ -13,7 +13,8 @@ export const MEDIA_PROCESSING_STATUS = {
   FAILED: "failed",
 } as const;
 
-export type MediaProcessingStatus = (typeof MEDIA_PROCESSING_STATUS)[keyof typeof MEDIA_PROCESSING_STATUS];
+export type MediaProcessingStatus =
+  (typeof MEDIA_PROCESSING_STATUS)[keyof typeof MEDIA_PROCESSING_STATUS];
 
 export const AI_STATUS = {
   PENDING: "pending",
@@ -30,3 +31,7 @@ export const TAG_SOURCE = {
 } as const;
 
 export type TagSource = (typeof TAG_SOURCE)[keyof typeof TAG_SOURCE];
+
+export const CRON_BATCH_SIZE = 10;
+export const MAX_AI_ATTEMPTS = 3;
+export const MAX_EMBEDDING_ATTEMPTS = 3;

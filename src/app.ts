@@ -1,25 +1,14 @@
 import { env } from "@/constants/env";
-import { ollama } from "@/db/ollama";
 import { run_migrations } from "@/db/schema";
 import { auth_routes } from "@/routes/auth";
 import { user_routes } from "@/routes/user";
-import { ai_process_routes } from "./routes/ai-process";
+import { ai_process_routes } from "@/routes/ai-process";
 import chalk from "chalk";
 import express from "express";
+import { setup_qdrant_collections } from "@/db/quadrant";
 
-async function connect_ollama() {
-  try {
-    await ollama.list();
-    console.log(chalk.green(`Ollama connected at ${env.ollama_url}`));
-  } catch (err) {
-    console.error(chalk.red(`Failed to connect to Ollama at ${env.ollama_url}`));
-    console.error(err);
-    process.exit(1);
-  }
-}
-
-await connect_ollama();
-await run_migrations();
+run_migrations();
+setup_qdrant_collections();
 
 const app = express();
 app.use(express.json());

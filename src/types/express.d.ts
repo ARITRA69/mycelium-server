@@ -1,11 +1,9 @@
+import { TUser } from "./schemas/user";
+
 declare global {
   namespace Express {
     export interface Request {
-      user: {
-        id: string;
-        email: string;
-        created_at: Date;
-      };
+      user: TUser;
     }
   }
 }

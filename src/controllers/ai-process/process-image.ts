@@ -2,7 +2,7 @@ import { MODELS } from "@/constants/models";
 import { IMAGE_EXTRACT_PROMPT } from "@/constants/prompts";
 import { ollama } from "@/db/ollama";
 import { error, success } from "@/types/response";
-import type { Request, Response } from "express";
+import { Request, Response } from "express";
 
 export async function handle_process_image(req: Request, res: Response): Promise<void> {
   if (!req.file) {
