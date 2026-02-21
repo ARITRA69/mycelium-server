@@ -1,17 +1,18 @@
 import { env } from "@/constants/env";
 import { run_migrations } from "@/db/schema";
-import { auth_routes } from "@/routes/auth";
 import { user_routes } from "@/routes/user";
 import { ai_process_routes } from "@/routes/ai-process";
 import chalk from "chalk";
 import express from "express";
 import { setup_qdrant_collections } from "@/db/quadrant";
+import { clerkMiddleware } from "@clerk/express";
 
 run_migrations();
 setup_qdrant_collections();
 
 const app = express();
 app.use(express.json());
+app.use(clerkMiddleware({ secretKey: env.clerk_secret_key, publishableKey: env.clerk_publishable_key }));
 
 app.get("/", (_req, res) => {
   res.json({
@@ -22,7 +23,6 @@ app.get("/", (_req, res) => {
   });
 });
 
-app.use("/api/v1/auth", auth_routes);
 app.use("/api/v1/user", user_routes);
 app.use("/api/v1/ai-process", ai_process_routes);
 

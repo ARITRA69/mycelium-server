@@ -5,9 +5,14 @@ export async function run_migrations() {
     CREATE TABLE IF NOT EXISTS users (
       id          text primary key,
       email       text unique not null,
+      name        text,
+      device_info text,
       created_at  timestamptz default now()
     )
   `;
+
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS name text`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS device_info text`;
 
   await sql`
     DO $$ BEGIN
