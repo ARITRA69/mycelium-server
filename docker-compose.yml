@@ -82,6 +82,24 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   pgadmin:
     image: dpage/pgadmin4:latest
     restart: unless-stopped
@@ -101,8 +119,25 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    restart: unless-stopped
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8085:8081"
+    depends_on:
+      redis:
+        condition: service_healthy
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   postgres_data:
   qdrant_data:
   qdrant_dev_data:
   pgadmin_data:
+  redis_data:
