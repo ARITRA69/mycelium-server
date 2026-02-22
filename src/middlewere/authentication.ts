@@ -7,8 +7,8 @@ import { sql } from "@/db/postgresql";
 const clerk_client = createClerkClient({ secretKey: env.clerk_secret_key });
 
 export async function is_authenticated(req: Request, res: Response, next: NextFunction): Promise<void> {
-  const { userId } = getAuth(req);
-
+  const auth = getAuth(req);
+  const { userId } = auth;
   if (!userId) {
     res.status(401).json({ message: "Unauthorized" });
     return;
