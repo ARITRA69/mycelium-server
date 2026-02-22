@@ -15,6 +15,13 @@ export type TMediaItem<TMediaItemUser = TUser["id"]> = {
   taken_at: Date | null;
   is_vaulted: boolean;
   processing_status: MediaProcessingStatus;
+  thumbnail_path: string | null;
+  placeholder_path: string | null;
+  hls_dir: string | null;
+  video_thumb_path: string | null;
+  rotation: number | null;
+  codec: string | null;
+  error_message: string | null;
   deleted_at: Date | null;
   created_at: Date;
   updated_at: Date;
