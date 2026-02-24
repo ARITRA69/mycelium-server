@@ -5,14 +5,12 @@ import { ai_process_routes } from "@/routes/ai-process";
 import chalk from "chalk";
 import express from "express";
 import { setup_qdrant_collections } from "@/db/quadrant";
-import { clerkMiddleware } from "@clerk/express";
 
 run_migrations();
 setup_qdrant_collections();
 
 const app = express();
 app.use(express.json());
-app.use(clerkMiddleware({ secretKey: env.clerk_secret_key, publishableKey: env.clerk_publishable_key }));
 
 app.get("/", (_req, res) => {
   res.json({

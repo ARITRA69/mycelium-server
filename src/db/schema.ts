@@ -13,6 +13,11 @@ export async function run_migrations() {
 
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS name text`;
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS device_info text`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name text`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name text`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS date_of_birth date`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_complete boolean not null default false`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS media_library_permission_granted boolean not null default false`;
 
   await sql`
     DO $$ BEGIN
