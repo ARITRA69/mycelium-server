@@ -10,10 +10,10 @@ import fs from "fs";
 import path from "path";
 import ffmpeg from "fluent-ffmpeg";
 import { setup_qdrant_collections } from "@/db/quadrant";
-import { clerkMiddleware } from "@clerk/express";
+import { apiReference } from "@scalar/express-api-reference";
+import { openapi_spec } from "./docs/openapi";
 import "@/workers/image-worker";
 import "@/workers/video-worker";
-
 
 // Set ffmpeg/ffprobe paths explicitly so fluent-ffmpeg can find them
 const FFMPEG_BIN = path.join(
@@ -23,13 +23,12 @@ const FFMPEG_BIN = path.join(
   "Packages",
   "Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe",
   "ffmpeg-8.0.1-full_build",
-  "bin"
+  "bin",
 );
 ffmpeg.setFfmpegPath(path.join(FFMPEG_BIN, "ffmpeg.exe"));
 ffmpeg.setFfprobePath(path.join(FFMPEG_BIN, "ffprobe.exe"));
 
 // Import workers to start BullMQ listeners
-
 
 // Create storage directories
 const storage_dirs = [
@@ -49,15 +48,13 @@ setup_qdrant_collections();
 
 const app = express();
 app.use(express.json());
-app.use(clerkMiddleware());
-
 // Serve storage as static files
 app.use("/static", express.static(STORAGE_ROOT));
 
 app.get("/", (_req, res) => {
   res.json({
     status: "ok",
-    message: "Gallery API is running",
+    message: "Mycelium API is running",
     version: "1.0.0",
     timestamp: new Date().toISOString(),
   });
@@ -65,7 +62,17 @@ app.get("/", (_req, res) => {
 
 app.use("/api/v1/user", user_routes);
 app.use("/api/v1/ai-process", ai_process_routes);
-app.use("/api/v1/media",upload_routes)
+app.use("/api/v1/media", upload_routes);
+
+app.get("/openapi.json", (_req, res) => res.json(openapi_spec));
+
+app.use(
+  "/docs",
+  apiReference({
+    spec: { content: openapi_spec },
+    theme: "default",
+  }),
+);
 
 app.use((_req, res) => {
   res.status(404).json({ message: "Not found" });

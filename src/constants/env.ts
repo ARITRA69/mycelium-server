@@ -19,4 +19,7 @@ export const env: TEnv = {
   ollama_url: Bun.env.OLLAMA_URL ?? "NA",
   qdrant_url: Bun.env.QDRANT_URL ?? "NA",
   firebase_config_path: Bun.env.FIREBASE_CONFIG_PATH ?? "NA",
+  redis_host: Bun.env.REDIS_HOST ?? "127.0.0.1",
+  redis_port: Number(Bun.env.REDIS_PORT ?? 6379),
+  storage_directory: Bun.env.STORAGE_DIRECTORY ?? "storage",
 };
