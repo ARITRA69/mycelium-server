@@ -6,6 +6,9 @@ export type TEnv = {
   ollama_url: string;
   qdrant_url: string;
   firebase_config_path: string;
+  redis_host: string;
+  redis_port: number;
+  storage_directory: string;
 };
 
 export const env: TEnv = {

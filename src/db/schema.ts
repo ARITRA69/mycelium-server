@@ -186,4 +186,21 @@ export async function run_migrations() {
 
   await sql`CREATE INDEX IF NOT EXISTS vault_sessions_user_idx ON vault_sessions("user")`;
   await sql`CREATE INDEX IF NOT EXISTS vault_sessions_expires_at_idx ON vault_sessions(expires_at)`;
+
+  // Add media processing columns (idempotent)
+  const media_columns = [
+    { name: "thumbnail_path", type: "text" },
+    { name: "placeholder_path", type: "text" },
+    { name: "hls_dir", type: "text" },
+    { name: "video_thumb_path", type: "text" },
+    { name: "rotation", type: "int" },
+    { name: "codec", type: "text" },
+    { name: "error_message", type: "text" },
+  ];
+
+  for (const col of media_columns) {
+    await sql.unsafe(
+      `ALTER TABLE media_items ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`
+    );
+  }
 }
