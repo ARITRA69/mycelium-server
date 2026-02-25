@@ -5,6 +5,7 @@ import { sql } from "@/db/postgresql";
 import { env } from "@/constants/env";
 import { STORAGE_ROOT } from "@/constants/common";
 import type { ImageJobData } from "@/types/schemas/media-job";
+import { genererate_image_embedding } from "@/services/post-process-media-ai";
 
 const image_worker = new Worker<ImageJobData>(
   "image-processing",
@@ -82,6 +83,15 @@ const image_worker = new Worker<ImageJobData>(
 
       throw err;
     }
+
+    // AI description extraction + embedding generation
+    // Runs only if image processing succeeded. Failures here
+    // do NOT affect media_items.processing_status.
+    await genererate_image_embedding({
+      media_id,
+      file_path,
+      media_type: "image",
+    });
   },
   {
     connection: {

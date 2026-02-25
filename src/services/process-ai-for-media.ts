@@ -33,11 +33,18 @@ const handle_process_image_for_media = async ({
     });
 
     const response_in_json = JSON.parse(generated_text.response);
+    const tags: string[] = Array.isArray(response_in_json.tags)
+      ? response_in_json.tags
+      : [];
+
+    // Bun.sql doesn't auto-convert JS arrays to PG array literals,
+    // so we build the text[] literal manually: {"val1","val2",...}
+    const pg_tags = `{${tags.map((t) => `"${t.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`).join(",")}}`;
 
     await sql`
         UPDATE media_ai_data
         SET description = ${response_in_json.desc},
-            tags = ${response_in_json.tags},
+            tags = ${pg_tags}::text[],
             status = 'completed',
             completed_at = now()
         WHERE media = ${media.id}

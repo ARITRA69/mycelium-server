@@ -2,10 +2,10 @@ import type { Request, Response } from "express";
 import { sql } from "@/db/postgresql";
 import { success, error } from "@/types/response";
 import type { TMediaItem } from "@/types/schemas/media-item";
-import { enqueue_processing, remove_file } from "@/utils/fucntions";
+import { enqueue_processing, remove_file } from "@/utils/functions";
 import { is_image } from "@/utils/media";
 import { probe_video, extract_video_metadata } from "@/utils/video";
-import { MAX_VIDEO_DURATION, type TImageMimeTypes } from "@/constants/common";
+import { MAX_VIDEO_DURATION, TAllowedMimeTypes, type TImageMimeTypes } from "@/constants/common";
 
 export async function upload_media(
   req: Request,
@@ -18,7 +18,7 @@ export async function upload_media(
   }
 
   try {
-    const user_id = req.user?.id || "test_user_Abhishek";
+    const user_id = req.user?.id;
     if (!user_id) {
       remove_file(file.path);
       error(res, "Unauthorized", 401);
@@ -72,7 +72,7 @@ export async function upload_media(
     await enqueue_processing({
       media_id: row.id,
       file_path: file.path,
-      mime_type: file.mimetype,
+      mime_type: file.mimetype as TAllowedMimeTypes,
       media_type,
     });
 
