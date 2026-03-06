@@ -1,5 +1,5 @@
 import { CRON_BATCH_SIZE, MAX_AI_ATTEMPTS } from "@/constants/common";
-import { process_ai_for_media } from "@/services/process-ai-for-media";
+import { process_ai_for_media } from "@/services/ai/process-ai-for-media";
 import { sql } from "bun";
 
 export const runAiCron = async () => {

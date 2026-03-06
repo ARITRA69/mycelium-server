@@ -1,4 +1,6 @@
 import { env } from "@/constants/env";
+import { MODELS } from "@/constants/models";
+import { ollama } from "@/db/ollama";
 import { STORAGE_ROOT } from "@/constants/common";
 import { run_migrations } from "@/db/schema";
 import { user_routes } from "@/routes/user";
@@ -78,6 +80,24 @@ app.use((_req, res) => {
   res.status(404).json({ message: "Not found" });
 });
 
-app.listen(env.port, () => {
-  console.log(chalk.red(`Server running on http://localhost:${env.port}`));
-});
+const start_server = async () => {
+  if (env.ollama_auto_pull) {
+    console.log(chalk.yellow(`[ollama] pulling ${MODELS.QWEN3_5_0_8B}...`));
+    const stream = await ollama.pull({ model: MODELS.QWEN3_5_0_8B, stream: true });
+    for await (const progress of stream) {
+      if (progress.total && progress.completed) {
+        const pct = ((progress.completed / progress.total) * 100).toFixed(1);
+        process.stdout.write(`\r[ollama] ${progress.status} ${pct}%`);
+      } else {
+        process.stdout.write(`\r[ollama] ${progress.status}          `);
+      }
+    }
+    process.stdout.write('\n');
+  }
+
+  app.listen(env.port, () => {
+    console.log(chalk.red(`Server running on http://localhost:${env.port}`));
+  });
+};
+
+start_server();

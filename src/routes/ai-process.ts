@@ -1,5 +1,4 @@
 import { handle_process_image } from '@/controllers/ai-process/process-image';
-import { is_authenticated } from '@/middlewere/authentication';
 import { Router } from 'express';
 import multer from 'multer';
 
@@ -66,6 +65,6 @@ const upload = multer({ storage: multer.memoryStorage() });
  *       500:
  *         description: Internal server error
  */
-router.post('/image', is_authenticated, upload.single('image'), handle_process_image);
+router.post('/image', upload.single('image'), handle_process_image);
 
 export { router as ai_process_routes };

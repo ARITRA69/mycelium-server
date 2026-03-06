@@ -1,7 +1,6 @@
 import { get_me } from '@/controllers/user/get-me';
 import { get_users } from '@/controllers/user/get-users';
 import { patch_me } from '@/controllers/user/patch-me';
-import { is_authenticated } from '@/middlewere/authentication';
 import { Router } from 'express';
 
 const router = Router();
@@ -44,7 +43,7 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/me', is_authenticated, get_me);
+router.get('/me', get_me);
 
 /**
  * @openapi
@@ -122,7 +121,7 @@ router.get('/me', is_authenticated, get_me);
  *       500:
  *         description: Internal server error
  */
-router.patch('/me', is_authenticated, patch_me);
+router.patch('/me', patch_me);
 
 /**
  * @openapi
@@ -175,6 +174,6 @@ router.patch('/me', is_authenticated, patch_me);
  *       500:
  *         description: Internal server error
  */
-router.get('/', is_authenticated, get_users);
+router.get('/', get_users);
 
 export { router as user_routes };

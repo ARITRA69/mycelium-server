@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { upload_media } from '@/controllers/media/upload-media';
 import { upload_middleware } from '@/middlewere/multer';
-import { is_authenticated } from '@/middlewere/authentication';
 import { get_media_status } from '@/controllers/media/get-media-status';
 
 const router = Router();
@@ -71,7 +70,7 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.post('/upload', is_authenticated, upload_middleware.single('file'), upload_media);
+router.post('/upload', upload_middleware.single('file'), upload_media);
 
 /**
  * @openapi

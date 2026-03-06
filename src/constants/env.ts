@@ -9,6 +9,7 @@ export type TEnv = {
   redis_host: string;
   redis_port: number;
   storage_directory: string;
+  ollama_auto_pull: boolean;
 };
 
 export const env: TEnv = {
@@ -22,4 +23,5 @@ export const env: TEnv = {
   redis_host: Bun.env.REDIS_HOST ?? "127.0.0.1",
   redis_port: Number(Bun.env.REDIS_PORT ?? 6379),
   storage_directory: Bun.env.STORAGE_DIRECTORY ?? "storage",
+  ollama_auto_pull: Bun.env.OLLAMA_AUTO_PULL === "true",
 };

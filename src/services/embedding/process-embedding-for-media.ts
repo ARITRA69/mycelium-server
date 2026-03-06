@@ -1,8 +1,8 @@
 import { MODELS } from "@/constants/models";
 import { ollama } from "@/db/ollama";
 import { qdrant, QDRANT_COLLECTIONS } from "@/db/quadrant";
+import { sql } from "@/db/postgresql";
 import { TMediaAiData } from "@/types/schemas/media-ai-data";
-import { sql } from "bun";
 
 export const process_embedding_for_media = async ({
   media,

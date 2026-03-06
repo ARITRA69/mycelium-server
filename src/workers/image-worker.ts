@@ -5,7 +5,7 @@ import { sql } from "@/db/postgresql";
 import { env } from "@/constants/env";
 import { STORAGE_ROOT } from "@/constants/common";
 import type { ImageJobData } from "@/types/schemas/media-job";
-import { genererate_image_embedding } from "@/services/post-process-media-ai";
+import { genererate_image_embedding } from "@/services/media/post-process-media-ai";
 
 const image_worker = new Worker<ImageJobData>(
   "image-processing",

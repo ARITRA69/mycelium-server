@@ -1,8 +1,6 @@
-import { MODELS } from "@/constants/models";
-import { IMAGE_EXTRACT_PROMPT } from "@/constants/prompts";
-import { ollama } from "@/db/ollama";
+import { sql } from "@/db/postgresql";
+import { extract_image_ai_data } from "@/services/ai/extract-image-ai-data";
 import type { TMediaItem } from "@/types/schemas/media-item";
-import { sql } from "bun";
 
 export const process_ai_for_media = async ({
   media,
@@ -25,25 +23,13 @@ const handle_process_image_for_media = async ({
     const file_buffer = await Bun.file(media.file_path).arrayBuffer();
     const base64 = Buffer.from(file_buffer).toString("base64");
 
-    const generated_text = await ollama.generate({
-      model: MODELS.QWEN3_VL_2B,
-      prompt: IMAGE_EXTRACT_PROMPT,
-      images: [base64],
-      think: false,
-    });
+    const { desc, tags } = await extract_image_ai_data(base64);
 
-    const response_in_json = JSON.parse(generated_text.response);
-    const tags: string[] = Array.isArray(response_in_json.tags)
-      ? response_in_json.tags
-      : [];
-
-    // Bun.sql doesn't auto-convert JS arrays to PG array literals,
-    // so we build the text[] literal manually: {"val1","val2",...}
     const pg_tags = `{${tags.map((t) => `"${t.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`).join(",")}}`;
 
     await sql`
         UPDATE media_ai_data
-        SET description = ${response_in_json.desc},
+        SET description = ${desc},
             tags = ${pg_tags}::text[],
             status = 'completed',
             completed_at = now()

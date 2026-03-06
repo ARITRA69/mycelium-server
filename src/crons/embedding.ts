@@ -1,5 +1,5 @@
 import { CRON_BATCH_SIZE, MAX_EMBEDDING_ATTEMPTS } from "@/constants/common";
-import { process_embedding_for_media } from "@/services/process-embedding-for-media";
+import { process_embedding_for_media } from "@/services/embedding/process-embedding-for-media";
 import { sql } from "bun";
 
 export const runEmbeddingCron = async () => {

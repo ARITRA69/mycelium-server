@@ -1,6 +1,6 @@
 import { sql } from "@/db/postgresql";
-import { process_ai_for_media } from "@/services/process-ai-for-media";
-import { process_embedding_for_media } from "@/services/process-embedding-for-media";
+import { process_ai_for_media } from "@/services/ai/process-ai-for-media";
+import { process_embedding_for_media } from "@/services/embedding/process-embedding-for-media";
 import type { MediaType } from "@/constants/common";
 import type { TMediaAiData } from "@/types/schemas/media-ai-data";
 
