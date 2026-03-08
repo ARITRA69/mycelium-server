@@ -16,6 +16,7 @@ import { apiReference } from "@scalar/express-api-reference";
 import { openapi_spec } from "./docs/openapi";
 import "@/workers/image-worker";
 import "@/workers/video-worker";
+import { initCrons } from "@/crons";
 
 // Set ffmpeg/ffprobe paths explicitly so fluent-ffmpeg can find them
 const FFMPEG_BIN = path.join(
@@ -101,3 +102,4 @@ const start_server = async () => {
 };
 
 start_server();
+initCrons();

@@ -203,4 +203,22 @@ export async function run_migrations() {
       `ALTER TABLE media_items ADD COLUMN IF NOT EXISTS ${col.name} ${col.type}`
     );
   }
+
+  await sql`ALTER TABLE media_items ALTER COLUMN "user" DROP NOT NULL`;
+
+  await sql`ALTER TABLE media_items ADD COLUMN IF NOT EXISTS device_asset_id text`;
+
+  // Camera / device metadata columns
+  await sql`ALTER TABLE media_items ADD COLUMN IF NOT EXISTS aperture float`;
+  await sql`ALTER TABLE media_items ADD COLUMN IF NOT EXISTS iso int`;
+  await sql`ALTER TABLE media_items ADD COLUMN IF NOT EXISTS shutter_speed float`;
+  await sql`ALTER TABLE media_items ADD COLUMN IF NOT EXISTS focal_length float`;
+  await sql`ALTER TABLE media_items ADD COLUMN IF NOT EXISTS device_make text`;
+  await sql`ALTER TABLE media_items ADD COLUMN IF NOT EXISTS device_model text`;
+
+  await sql`
+    CREATE UNIQUE INDEX IF NOT EXISTS media_items_user_device_asset_id_idx
+      ON media_items ("user", device_asset_id)
+      WHERE device_asset_id IS NOT NULL
+  `;
 }

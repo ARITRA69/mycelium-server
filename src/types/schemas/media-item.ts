@@ -21,6 +21,12 @@ export type TMediaItem<TMediaItemUser = TUser["id"]> = {
   video_thumb_path: string | null;
   rotation: number | null;
   codec: string | null;
+  aperture: number | null;
+  iso: number | null;
+  shutter_speed: number | null;
+  focal_length: number | null;
+  device_make: string | null;
+  device_model: string | null;
   error_message: string | null;
   deleted_at: Date | null;
   created_at: Date;

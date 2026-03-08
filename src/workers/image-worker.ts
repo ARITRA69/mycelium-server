@@ -12,6 +12,13 @@ const image_worker = new Worker<ImageJobData>(
   async (job) => {
     const { media_id, file_path, mime_type } = job.data;
 
+    const thumbnail_path = path.join(
+      STORAGE_ROOT,
+      "images",
+      "thumbnails",
+      `${media_id}.webp`
+    );
+
     try {
       await sql`
         UPDATE media_items SET processing_status = 'processing'
@@ -35,13 +42,6 @@ const image_worker = new Worker<ImageJobData>(
       }
 
       image = image.rotate();
-
-      const thumbnail_path = path.join(
-        STORAGE_ROOT,
-        "images",
-        "thumbnails",
-        `${media_id}.webp`
-      );
 
       const placeholder_path = path.join(
         STORAGE_ROOT,
@@ -89,7 +89,7 @@ const image_worker = new Worker<ImageJobData>(
     // do NOT affect media_items.processing_status.
     await genererate_image_embedding({
       media_id,
-      file_path,
+      file_path: thumbnail_path,
       media_type: "image",
     });
   },
@@ -98,7 +98,9 @@ const image_worker = new Worker<ImageJobData>(
       host: env.redis_host,
       port: env.redis_port,
     },
-    concurrency: 5,
+    concurrency: 2,
+    lockDuration: 120_000,
+    stalledInterval: 60_000,
   }
 );
 

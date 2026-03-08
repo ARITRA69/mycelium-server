@@ -1,9 +1,50 @@
 import { Router } from 'express';
+
 import { upload_media } from '@/controllers/media/upload-media';
+import { get_synced_asset_ids } from '@/controllers/media/get-synced-asset-ids';
 import { upload_middleware } from '@/middlewere/multer';
 import { get_media_status } from '@/controllers/media/get-media-status';
 
 const router = Router();
+
+/**
+ * @openapi
+ * /api/v1/media/synced-asset-ids:
+ *   get:
+ *     summary: Get device asset IDs already synced for the authenticated user
+ *     description: |
+ *       Returns the list of `device_asset_id` values that are already stored in
+ *       `media_items` for this user (not soft-deleted). Use this on the client to
+ *       build a skip-set before uploading a batch of local assets, avoiding
+ *       redundant re-uploads.
+ *     tags: [Media]
+ *     responses:
+ *       200:
+ *         description: Synced asset IDs fetched
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Synced asset IDs fetched
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     ids:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       example: ['asset-uuid-1', 'asset-uuid-2']
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
+router.get('/synced-asset-ids', get_synced_asset_ids);
 
 /**
  * @openapi
@@ -19,11 +60,12 @@ const router = Router();
  *       Use `GET /api/v1/media/{id}/status` to poll until `processing_status` reaches
  *       `"done"` or `"failed"`.
  *
+ *       If `device_asset_id` is provided and a matching row already exists for this user,
+ *       returns `200` with the existing `media_id` immediately and discards the uploaded file.
+ *
  *       **Video constraint:** videos exceeding the max duration are rejected before queuing
  *       and the uploaded file is deleted from disk.
  *     tags: [Media]
- *     security:
- *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -37,6 +79,9 @@ const router = Router();
  *                 type: string
  *                 format: binary
  *                 description: Image (JPEG, PNG, HEIC, WEBP) or video (MP4, MOV, AVI, MKV) file
+ *               device_asset_id:
+ *                 type: string
+ *                 description: Optional stable ID from the device media library (e.g. expo-media-library asset ID)
  *     responses:
  *       202:
  *         description: Upload accepted and queued for processing
@@ -55,14 +100,24 @@ const router = Router();
  *                       type: string
  *                       format: uuid
  *                       example: f47ac10b-58cc-4372-a567-0e02b2c3d479
- *       400:
- *         description: No file provided or unsupported file type or video exceeds duration limit
+ *       200:
+ *         description: Asset was already synced — returns existing media_id
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/ErrorResponse'
- *       401:
- *         description: Unauthorized
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Already synced
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     media_id:
+ *                       type: string
+ *                       format: uuid
+ *       400:
+ *         description: No file provided or unsupported file type or video exceeds duration limit
  *         content:
  *           application/json:
  *             schema:

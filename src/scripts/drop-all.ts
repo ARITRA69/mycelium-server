@@ -1,6 +1,7 @@
 import { sql } from "@/db/postgresql";
+import { qdrant, QDRANT_COLLECTIONS } from "@/db/quadrant";
 
-async function drop_all() {
+const drop_all = async (): Promise<void> => {
   await sql.unsafe(`
     DO $$ DECLARE
       r record;
@@ -20,9 +21,14 @@ async function drop_all() {
       END LOOP;
     END $$
   `);
-
   console.log("Dropped all tables, indexes, and enum types.");
+
+  for (const collection of Object.values(QDRANT_COLLECTIONS)) {
+    await qdrant.deleteCollection(collection);
+    console.log(`Dropped Qdrant collection: ${collection}`);
+  }
+
   process.exit(0);
-}
+};
 
 drop_all();

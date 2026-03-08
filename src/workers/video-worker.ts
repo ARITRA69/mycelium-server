@@ -208,7 +208,9 @@ const video_worker = new Worker<VideoJobData>(
       host: env.redis_host,
       port: env.redis_port,
     },
-    concurrency: 2,
+    concurrency: 1,
+    lockDuration: 600_000,
+    stalledInterval: 300_000,
   }
 );
 

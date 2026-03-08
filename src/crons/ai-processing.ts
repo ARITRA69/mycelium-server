@@ -12,6 +12,9 @@ export const runAiCron = async () => {
     LIMIT ${CRON_BATCH_SIZE}
   `;
 
+  if (batch.length === 0) return;
+  console.log(`[ai-cron] processing ${batch.length} item(s)`);
+
   for (const item of batch) {
     await process_ai_for_media({
       media: {
